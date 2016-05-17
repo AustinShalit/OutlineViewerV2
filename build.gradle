@@ -1,0 +1,38 @@
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'idea'
+apply from: 'http://dl.bintray.com/shemnon/javafx-gradle/8.1.1/javafx.plugin'
+
+if (!hasProperty('repo')) {
+    ext.repo = 'development'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url = "${System.getProperty('user.home')}/releases/maven/$repo"
+    }
+    mavenLocal()
+    maven {
+        url = "http://first.wpi.edu/FRC/roborio/maven/$repo"
+    }
+}
+
+dependencies {
+    compile "edu.wpi.first.wpilib.networktables.java:NetworkTables:3.0.0-SNAPSHOT:desktop"
+}
+
+javafx {
+
+    appID = 'OutlineViewer'
+    appName = 'OutlineViewer'
+    mainClass = 'edu.wpi.first.outlineviewer.Main'
+
+    // This prevents the JIT from eating stack traces that get thrown a lot
+    // This is slower but means we actually get the stack traces instead of
+    // having them become one line like `java.lang.ArrayIndexOutOfBoundsException`
+    // and as such, would be useless.
+    // See: https://plumbr.eu/blog/java/on-a-quest-for-missing-stacktraces
+    jvmArgs = ["-XX:-OmitStackTraceInFastThrow"]
+}
+mainClassName = javafx.mainClass
