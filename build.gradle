@@ -20,12 +20,26 @@ repositories {
 }
 
 dependencies {
+    compile group: 'com.google.guava', name: 'guava', version: '19.0'
     compile "edu.wpi.first.wpilib.networktables.java:NetworkTables:3.0.0-SNAPSHOT:desktop"
+
+    testCompile group: 'com.google.guava', name: 'guava-testlib', version: '19.0'
 }
 
 checkstyle {
     configFile = new File(rootDir, "checkstyle.xml")
     toolVersion = '6.19'
+}
+
+test {
+    testLogging {
+        if (project.hasProperty('logTests')) {
+            events "started", "passed", "skipped", "failed"
+        } else {
+            events "failed"
+        }
+        exceptionFormat "full"
+    }
 }
 
 tasks.withType(Checkstyle) {

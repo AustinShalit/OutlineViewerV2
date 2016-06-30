@@ -10,7 +10,7 @@ matrix:
       osx_image: xcode8
 
 script:
-  - ./gradlew checkstyleMain checkstyleTest test --stacktrace
+  - ./gradlew checkstyleMain checkstyleTest test --stacktrace -PlogTests
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

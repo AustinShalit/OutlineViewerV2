@@ -20,9 +20,9 @@ public class TableViewerController {
 
   @FXML
   void initialize() {
-    TreeTableColumn<TableEntryData, String> keyCol = new TreeTableColumn("Key");
-    TreeTableColumn<TableEntryData, String> valueCol = new TreeTableColumn("Value");
-    TreeTableColumn<TableEntryData, String> typeCol = new TreeTableColumn("Type");
+    TreeTableColumn<TableEntryData, String> keyCol = new TreeTableColumn<>("Key");
+    TreeTableColumn<TableEntryData, String> valueCol = new TreeTableColumn<>("Value");
+    TreeTableColumn<TableEntryData, String> typeCol = new TreeTableColumn<>("Type");
     table.getColumns().setAll(keyCol, valueCol, typeCol);
 
     keyCol.setCellValueFactory(p -> p.getValue().getValue().getKey());

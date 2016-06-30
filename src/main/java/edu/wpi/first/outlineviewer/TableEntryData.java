@@ -3,21 +3,24 @@ package edu.wpi.first.outlineviewer;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-public class TableEntryData {
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public class TableEntryData implements TableEntry {
 
   private SimpleStringProperty key;
   private SimpleObjectProperty value;
   private SimpleStringProperty type;
 
-  private static final String[] typeNames
-      = new String[]{"Boolean", "Number", "String", "Raw", "Boolean[]", "Number[]", "String[]"};
-
   @SuppressWarnings("JavadocMethod")
   public TableEntryData(String key, Object value) {
+    checkNotNull(key, "A key must be provided to create a piece of table data");
+    checkNotNull(value, "Use the other constructor if you want to create a folder");
+
     this.key = new SimpleStringProperty(key);
-    if (value != null) {
-      this.value = new SimpleObjectProperty(value);
-      this.type = new SimpleStringProperty(typeFromValue(value));
+    this.value = new SimpleObjectProperty<>(value);
+    this.type = new SimpleStringProperty();
+    if (!typeFromValue(value)) {
+      throw new IllegalArgumentException("The provided object is not a valid type");
     }
   }
 
@@ -39,38 +42,35 @@ public class TableEntryData {
    * from (such as "Speed controller", "Subsystem", etc.).
    */
   public void setType(String type) {
-    this.type.set(type);
+    checkNotNull(type, "Type cannot be null");
+
+    this.type.setValue(type);
   }
 
   /**
    * Generates a type string based on the value of the table entry.
    */
-  private String typeFromValue(Object value) {
+  private boolean typeFromValue(Object value) {
     if (isMetadata()) {
-      return "Metadata";
+      type.setValue("Metadata");
+    } else if (value instanceof Boolean) {
+      type.setValue("Boolean");
+    } else if (value instanceof Double) {
+      type.setValue("Number");
+    } else if (value instanceof String) {
+      type.setValue("String");
+    } else if (value instanceof byte[]) {
+      type.setValue("Raw");
+    } else if (value instanceof boolean[]) {
+      type.setValue("Boolean[" + ((boolean[]) value).length + "]");
+    } else if (value instanceof double[]) {
+      type.setValue("Number[" + ((double[]) value).length + "]");
+    } else if (value instanceof String[]) {
+      type.setValue("String[" + ((String[]) value).length + "]");
+    } else {
+      return false; // The method did not change the value of type
     }
-    if (value instanceof Boolean) {
-      return typeNames[0];
-    }
-    if (value instanceof Double) {
-      return typeNames[1];
-    }
-    if (value instanceof String) {
-      return typeNames[2];
-    }
-    if (value instanceof byte[]) {
-      return typeNames[3];
-    }
-    if (value instanceof boolean[]) {
-      return typeNames[4].substring(0, 8) + ((boolean[]) value).length + "]";
-    }
-    if (value instanceof double[]) {
-      return typeNames[5].substring(0, 7) + ((double[]) value).length + "]";
-    }
-    if (value instanceof String[]) {
-      return typeNames[6].substring(0, 7) + ((String[]) value).length + "]";
-    }
-    return "ERROR";
+    return true;
   }
 
   /**
@@ -81,7 +81,7 @@ public class TableEntryData {
   public boolean isMetadata() {
     return key.getValue().startsWith("~")
         && key.getValue().endsWith("~")
-        && key.getValue().toUpperCase().equals(key);
+        && key.getValue().toUpperCase().equals(key.getValue());
   }
 
 }
