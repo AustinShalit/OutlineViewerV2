@@ -14,7 +14,7 @@
       </TreeTableView>
       <ToolBar>
          <items>
-            <Text fx:id="connectionIndicator" strokeType="OUTSIDE" strokeWidth="0.0" text="Disconnected" />
+            <Text fx:id="connectionIndicator" strokeType="OUTSIDE" strokeWidth="0.0" text="No Connection" />
          </items>
       </ToolBar>
    </children>

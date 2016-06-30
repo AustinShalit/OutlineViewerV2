@@ -39,7 +39,11 @@ public class TableViewerController {
         setupSubTableListeners("");
 
         NetworkTablesJNI.addConnectionListener((uid, connected, conn) -> {
-            connectionIndicator.setText("Connected: " + connected);
+            if (NetworkTable.getTable("").isServer()) {
+                connectionIndicator.setText("Number of Clients:\t" + NetworkTablesJNI.getConnections().length);
+            } else {
+                connectionIndicator.setText("Connection Status: " + connected);
+            }
         }, true);
 
     }
