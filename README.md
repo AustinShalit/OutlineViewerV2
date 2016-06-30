@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/AustinShalit/OutlineViewerV2.svg?branch=master)](https://travis-ci.org/AustinShalit/OutlineViewerV2)
+
 # Outline Viewer V2 Project
 
 Welcome to the WPILib project. This repository contains the Outline Viewer V2 project.
