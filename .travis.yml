@@ -1,0 +1,21 @@
+# NOTE: Don't use `sudo` anywhere or the build will run on Travis's slower, outdated build system
+language: java
+
+matrix:
+  fast_finish: true
+  include:
+    - os: linux
+      jdk: oraclejdk8
+    - os: osx
+      osx_image: xcode8
+
+script:
+  - ./gradlew checkstyleMain checkstyleTest test --stacktrace
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
