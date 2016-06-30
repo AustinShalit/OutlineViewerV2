@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'idea'
+apply plugin: 'checkstyle'
 apply from: 'http://dl.bintray.com/shemnon/javafx-gradle/8.1.1/javafx.plugin'
 
 if (!hasProperty('repo')) {
@@ -20,6 +21,16 @@ repositories {
 
 dependencies {
     compile "edu.wpi.first.wpilib.networktables.java:NetworkTables:3.0.0-SNAPSHOT:desktop"
+}
+
+checkstyle {
+    configFile = new File(rootDir, "checkstyle.xml")
+    toolVersion = '6.19'
+}
+
+tasks.withType(Checkstyle) {
+    // Remove checkstyle dependencies on compilation
+    it.dependsOn = []
 }
 
 javafx {
