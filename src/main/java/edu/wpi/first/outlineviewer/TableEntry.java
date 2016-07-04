@@ -46,6 +46,9 @@ public abstract class TableEntry {
     return treeItem;
   }
 
+  /**
+   * Gets a String representing the NetworkTable path to this entry.
+   */
   public String getNetworkTablePath() {
     if (isRoot()) {
       return "";
