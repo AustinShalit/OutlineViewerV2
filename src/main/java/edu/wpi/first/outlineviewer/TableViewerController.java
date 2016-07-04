@@ -2,7 +2,9 @@ package edu.wpi.first.outlineviewer;
 
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.networktables.NetworkTablesJNI;
+import edu.wpi.first.wpilibj.tables.ITable;
 
+import java.util.LinkedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeSortMode;
@@ -13,16 +15,18 @@ import javafx.scene.text.Text;
 public class TableViewerController {
 
   @FXML
-  private TreeTableView<TableEntryData> table;
+  private TreeTableView<TableEntry> table;
 
   @FXML
   private Text connectionIndicator;
 
+  private TableEntryParent root;
+
   @FXML
   void initialize() {
-    TreeTableColumn<TableEntryData, String> keyCol = new TreeTableColumn<>("Key");
-    TreeTableColumn<TableEntryData, String> valueCol = new TreeTableColumn<>("Value");
-    TreeTableColumn<TableEntryData, String> typeCol = new TreeTableColumn<>("Type");
+    TreeTableColumn<TableEntry, String> keyCol = new TreeTableColumn<>("Key");
+    TreeTableColumn<TableEntry, String> valueCol = new TreeTableColumn<>("Value");
+    TreeTableColumn<TableEntry, String> typeCol = new TreeTableColumn<>("Type");
     table.getColumns().setAll(keyCol, valueCol, typeCol);
 
     keyCol.setCellValueFactory(p -> p.getValue().getValue().getKey());
@@ -32,12 +36,8 @@ public class TableViewerController {
     keyCol.setSortType(TreeTableColumn.SortType.DESCENDING);
     table.setSortMode(TreeSortMode.ALL_DESCENDANTS);
 
-    TreeItem<TableEntryData> root = new TreeItem<>(new TableEntryData("Root", null));
-    root.setExpanded(true);
-    table.setRoot(root);
-
-    setupTableListener(root, "");
-    setupSubTableListeners("");
+    root = new TableEntryParent("");
+    table.setRoot(root.getTreeItem());
 
     NetworkTablesJNI.addConnectionListener((uid, connected, conn) -> {
       if (NetworkTable.getTable("").isServer()) {
@@ -48,25 +48,39 @@ public class TableViewerController {
       }
     }, true);
 
+    NetworkTablesJNI.addEntryListener("", (uid, key, value, flags) -> {
+      LinkedList<String> subTables = splitDiscardingEmpty(key, "/");
+      LinkedList<TableEntryParent> parents = new LinkedList<>();
+      parents.add(root);
+      loop:
+      for (int i = 0; i < subTables.size(); i++) {
+        if (i == (subTables.size() - 1)) {
+          final TableEntryData newItem = new TableEntryData(subTables.get(i), value);
+          parents.getLast().getTreeItem().getChildren().add(newItem.getTreeItem());
+          newItem.setupListener();
+        } else {
+          for (TreeItem<TableEntry> t : parents.get(i).getTreeItem().getChildren()) {
+            if (t.getValue().getKey().getValue().equals(subTables.get(i))
+                && t.getValue() instanceof TableEntryParent) {
+              parents.add((TableEntryParent) t.getValue());
+              continue loop;
+            }
+          }
+          final TableEntryParent newParent = new TableEntryParent(subTables.get(i));
+          parents.get(i).getTreeItem().getChildren().add(newParent.getTreeItem());
+          parents.add(newParent);
+        }
+      }
+    }, ITable.NOTIFY_IMMEDIATE | ITable.NOTIFY_NEW);
   }
 
-  private void setupSubTableListeners(String networktable) {
-    NetworkTable.getTable(networktable).addSubTableListener((source, key, value, isNew) -> {
-      TreeItem<TableEntryData> subtable = new TreeItem<>(new TableEntryData(key, null));
-      table.getRoot().getChildren().add(subtable);
-      setupTableListener(subtable);
-    });
-  }
-
-  private void setupTableListener(TreeItem<TableEntryData> table) {
-    setupTableListener(table, table.getValue().getKey().getValue());
-  }
-
-  private void setupTableListener(TreeItem<TableEntryData> table, String networkTable) {
-    NetworkTable.getTable(networkTable).addTableListener((source, key, value, isNew) -> {
-      table.getChildren().removeIf(t -> t.getValue().getKey().getValue().equals(key));
-      TreeItem item = new TreeItem<>(new TableEntryData(key, value));
-      table.getChildren().add(item);
-    });
+  private LinkedList<String> splitDiscardingEmpty(String str, String separator) {
+    LinkedList<String> results = new LinkedList<>();
+    for (String string : str.split(separator)) {
+      if (string.length() > 0) {
+        results.add(string);
+      }
+    }
+    return results;
   }
 }

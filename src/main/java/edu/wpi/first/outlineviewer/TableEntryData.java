@@ -1,39 +1,15 @@
 package edu.wpi.first.outlineviewer;
 
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import edu.wpi.first.wpilibj.networktables.NetworkTablesJNI;
+import edu.wpi.first.wpilibj.tables.ITable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class TableEntryData implements TableEntry {
-
-  private SimpleStringProperty key;
-  private SimpleObjectProperty value;
-  private SimpleStringProperty type;
+public class TableEntryData extends TableEntry {
 
   @SuppressWarnings("JavadocMethod")
   public TableEntryData(String key, Object value) {
-    checkNotNull(key, "A key must be provided to create a piece of table data");
-    checkNotNull(value, "Use the other constructor if you want to create a folder");
-
-    this.key = new SimpleStringProperty(key);
-    this.value = new SimpleObjectProperty<>(value);
-    this.type = new SimpleStringProperty();
-    if (!typeFromValue(value)) {
-      throw new IllegalArgumentException("The provided object is not a valid type");
-    }
-  }
-
-  public SimpleStringProperty getKey() {
-    return key;
-  }
-
-  public SimpleObjectProperty getValue() {
-    return value;
-  }
-
-  public SimpleStringProperty getType() {
-    return type;
+    super(key, value, typeFromValue(key, value));
   }
 
   /**
@@ -43,45 +19,46 @@ public class TableEntryData implements TableEntry {
    */
   public void setType(String type) {
     checkNotNull(type, "Type cannot be null");
-
     this.type.setValue(type);
   }
 
   /**
    * Generates a type string based on the value of the table entry.
    */
-  private boolean typeFromValue(Object value) {
-    if (isMetadata()) {
-      type.setValue("Metadata");
+  public static String typeFromValue(String key, Object value) {
+    if (isMetadata(key)) {
+      return "Metadata";
     } else if (value instanceof Boolean) {
-      type.setValue("Boolean");
+      return "Boolean";
     } else if (value instanceof Double) {
-      type.setValue("Number");
+      return "Number";
     } else if (value instanceof String) {
-      type.setValue("String");
+      return "String";
     } else if (value instanceof byte[]) {
-      type.setValue("Raw");
+      return "Raw";
     } else if (value instanceof boolean[]) {
-      type.setValue("Boolean[" + ((boolean[]) value).length + "]");
+      return "Boolean[" + ((boolean[]) value).length + "]";
     } else if (value instanceof double[]) {
-      type.setValue("Number[" + ((double[]) value).length + "]");
+      return "Number[" + ((double[]) value).length + "]";
     } else if (value instanceof String[]) {
-      type.setValue("String[" + ((String[]) value).length + "]");
-    } else {
-      return false; // The method did not change the value of type
+      return "String[" + ((String[]) value).length + "]";
     }
-    return true;
+    return "Unknown";
   }
 
-  /**
-   * Sees if the data within this structure is metadata (i.e. has a key
-   * bookended by tildes ("~") and is in all caps). Used to show/hide metadata
-   * leaves in branches.
-   */
-  public boolean isMetadata() {
-    return key.getValue().startsWith("~")
-        && key.getValue().endsWith("~")
-        && key.getValue().toUpperCase().equals(key.getValue());
+  protected void setupListener() {
+    System.out.println("Setting up new data listener:\t" + this + "\t" + getNetworkTablePath());
+    NetworkTablesJNI.addEntryListener(getNetworkTablePath(), (uid, key, value, flags) -> {
+      if ((flags & ITable.NOTIFY_DELETE) != 0) {
+        System.out.println("Delete");
+        getTreeItem().getParent().getChildren().remove(getTreeItem());
+        NetworkTablesJNI.removeEntryListener(uid);
+      } else {
+        getValue().setValue(value);
+      }
+    }, ITable.NOTIFY_IMMEDIATE
+        | ITable.NOTIFY_LOCAL
+        | ITable.NOTIFY_DELETE
+        | ITable.NOTIFY_UPDATE);
   }
-
 }
