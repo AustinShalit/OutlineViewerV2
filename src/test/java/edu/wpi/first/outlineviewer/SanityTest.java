@@ -14,7 +14,8 @@ public class SanityTest extends AbstractPackageSanityTests {
   public SanityTest() {
     super();
     ignoreClasses(c -> Arrays.asList(
-        Main.class
+        Main.class,
+        PreferencesController.class
     ).contains(c));
   }
 

@@ -26,6 +26,9 @@ public class TableEntryData extends TableEntry {
    * Generates a type string based on the value of the table entry.
    */
   public static String typeFromValue(String key, Object value) {
+    checkNotNull(key, "Key cannot be null");
+    checkNotNull(value, "Value cannot be null");
+
     if (isMetadata(key)) {
       return "Metadata";
     } else if (value instanceof Boolean) {
