@@ -1,7 +1,6 @@
 package edu.wpi.first.outlineviewer;
 
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;

@@ -7,7 +7,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TableEntryData extends TableEntry {
 
-  @SuppressWarnings("JavadocMethod")
+  /**
+   * Create a new TableEntryData.
+   *
+   * @param key The NetworkTable key associated with this entry
+   * @param value The NetworkTable value associated with this entry
+   */
   public TableEntryData(String key, Object value) {
     super(key, value, typeFromValue(key, value));
   }

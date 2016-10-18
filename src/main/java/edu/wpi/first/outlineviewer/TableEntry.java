@@ -15,6 +15,8 @@ public abstract class TableEntry {
 
   private final TreeItem<TableEntry> treeItem;
 
+  private static final char PATH_SEPARATOR = '/';
+
   /**
    * Create a new TableEntry.
    *
@@ -59,7 +61,8 @@ public abstract class TableEntry {
     if (isRoot()) {
       return "";
     }
-    return getTreeItem().getParent().getValue().getNetworkTablePath() + "/" + getKey().getValue();
+    return getTreeItem().getParent().getValue().getNetworkTablePath() + PATH_SEPARATOR
+        + getKey().getValue();
   }
 
   public boolean isRoot() {
