@@ -48,7 +48,6 @@ public class TableViewerController {
       }
     };
     listenerFunction.apply(0, false, null);
-
     NetworkTablesJNI.addConnectionListener(listenerFunction, true);
 
     NetworkTablesJNI.addEntryListener("", (uid, key, value, flags) -> {
