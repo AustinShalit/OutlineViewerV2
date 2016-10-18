@@ -15,7 +15,13 @@ public abstract class TableEntry {
 
   private final TreeItem<TableEntry> treeItem;
 
-  @SuppressWarnings("JavadocMethod")
+  /**
+   * Create a new TableEntry.
+   *
+   * @param key The NetworkTable key associated with this entry
+   * @param value The NetworkTable value associated with this entry
+   * @param type The NetworkTable type associated with this entry
+   */
   public TableEntry(final String key,
                     final Object value,
                     final String type) {

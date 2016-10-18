@@ -36,17 +36,20 @@ public class TableViewerController {
     keyCol.setSortType(TreeTableColumn.SortType.DESCENDING);
     table.setSortMode(TreeSortMode.ALL_DESCENDANTS);
 
-    root = new TableEntryParent("");
+    root = new TableEntryParent("Root");
     table.setRoot(root.getTreeItem());
 
-    NetworkTablesJNI.addConnectionListener((uid, connected, conn) -> {
+    NetworkTablesJNI.ConnectionListenerFunction listenerFunction = (uid, connected, conn) -> {
       if (NetworkTable.getTable("").isServer()) {
         connectionIndicator.setText("Number of Clients:\t"
             + NetworkTablesJNI.getConnections().length);
       } else {
         connectionIndicator.setText("Connection Status: " + connected);
       }
-    }, true);
+    };
+    listenerFunction.apply(0, false, null);
+
+    NetworkTablesJNI.addConnectionListener(listenerFunction, true);
 
     NetworkTablesJNI.addEntryListener("", (uid, key, value, flags) -> {
       LinkedList<String> subTables = splitDiscardingEmpty(key, "/");

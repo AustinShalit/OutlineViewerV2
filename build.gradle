@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '19.0'
-    compile "edu.wpi.first.wpilib.networktables.java:NetworkTables:3.0.0-SNAPSHOT:desktop"
+    compile "edu.wpi.first.wpilib.networktables.java:NetworkTables:+:desktop"
 
     testCompile group: 'com.google.guava', name: 'guava-testlib', version: '19.0'
 }
